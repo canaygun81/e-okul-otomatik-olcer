@@ -1,0 +1,196 @@
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
+from selenium.common.exceptions import StaleElementReferenceException
+import time
+
+def signup (kullanici_adi,sifre,guvenlik_kodu,driver):
+    driver.find_element(By.XPATH, "//*[@id='txtKullaniciAd']").send_keys(kullanici_adi)
+    driver.find_element(By.XPATH, "//*[@id='txtSifre']").send_keys(sifre)
+    driver.find_element(By.XPATH, "//*[@id='guvenlikKontrol']").send_keys(guvenlik_kodu)
+    driver.find_element(By.XPATH, "//*[@id='btnEokulGiris']").click()
+    time.sleep(2)
+def giris():
+    global driver
+    driver.find_element(By.XPATH,"// *[ @ id = 'mobile-collapse']").click()
+    driver.find_element(By.XPATH,"//*[@id='mdlIOK']/span[2]").click()
+    driver.find_element(By.XPATH,"//*[@id='OKLMenu1_TB_AnaMenu']/tbody/tr[8]/td/table[1]/tbody/tr/td").click()
+    driver.find_element(By.XPATH,"//*[@id='IOK10000']/tbody/tr[6]/td").click()
+    time.sleep(2)
+def sube_ders():
+    global driver
+    global sube
+    global ders
+    listsube = []
+    listders = []
+    itemsube=driver.find_element(By.ID,"ddlSinifiSubesi").find_elements(By.TAG_NAME,"option")
+    for i in itemsube:
+        listsube.append(i.text)
+    print(listsube)
+    for i in range(len(listsube)):
+        print(f" {listsube[i]} için {i+1} e basınız")
+    try:
+        driver.find_element(By.XPATH, "// *[ @ id = 'ddlSinifiSubesi']").click()
+        secsube = int(input("secmek istediginiz subenin numarası giriniz"))
+        for s in itemsube:
+            sube=s.find_element(By.XPATH, f"// *[ @ id = 'ddlSinifiSubesi'] / option[{secsube}]")
+            sube.click()
+    except StaleElementReferenceException:
+        print("error")
+
+    itemders = driver.find_element(By.ID, "ddlDersler").find_elements(By.TAG_NAME, "option")
+    for z in itemders:
+        listders.append(z.text)
+    print(listders)
+    for z in range((len(listders))):
+        print(f" {listders[z]} için {z+1} e basınız")
+
+    try:
+        driver.find_element(By.XPATH,"// *[ @ id = 'ddlDersler']").click()
+        secders = int(input("secmek istediginiz dersin numarası giriniz"))
+        time.sleep(10)
+        for v in itemders:
+            ders=v.find_element(By.XPATH, f"// *[ @ id = 'ddlDersler'] / option[{secders}]")
+            ders.click()
+    except StaleElementReferenceException:
+        print("error")
+    finally:
+
+        driver.find_element(By.XPATH,"//*[@id='btnListele']").click()
+
+def ogrenci_goster():
+    global driver
+    global list_ogrencibilgi
+    list_ogrencibilgi=[]
+
+    ogrencibilgi=driver.find_element(By.ID,"dgListem").find_elements(By.TAG_NAME,"tr")
+    for a in ogrencibilgi:
+        list_ogrencibilgi.append(a.text)
+    #print(list_ogrencibilgi)
+    global z
+    z=len(list_ogrencibilgi)
+    return z
+def ogrencibilgi(z):
+    global driver
+    list_numara=[]
+    list_ad=[]
+    list_not1=[]
+
+    for i in range(2,z+1):
+        numara=driver.find_element(By.XPATH,f"// *[ @ id = 'dgListem'] / tbody / tr[{i}] / td[1]").text
+        ad= driver.find_element(By.XPATH,f"// *[ @ id = 'dgListem'] / tbody / tr[{i}] / td[2]").text
+        not1= driver.find_element(By.XPATH,f"// *[ @ id = 'dgListem'] / tbody / tr[{i}] / td[7]").text
+        list_numara.append(numara)
+
+        list_ad.append(ad)
+        list_not1.append(int(not1))
+        dict={"numaralar":list_numara, "İsimler":list_ad, "İlk notlar":list_not1}
+
+    return dict
+
+s = Service("C:/Users/can/PycharmProjects/pythonProject1/chromedriver.exe")
+driver = webdriver.Chrome(service=s)
+driver.get("https://e-okul.meb.gov.tr/giris.aspx#!")
+driver.find_element(By.XPATH, "//*[@id='information']/div/div/a[1]/img").click()
+
+guvenlik_kodu = int(input("Sayfada açılan güvenlik kodunu giriniz:"))
+sifre = input("Sifrenizi giriniz:")
+kullanici_adi = input("kullanıcı adınızı giriniz:")
+
+signup(kullanici_adi,sifre,guvenlik_kodu,driver)
+giris()
+sube_ders()
+ogrenci_goster()
+g=ogrencibilgi(ogrenci_goster())
+print(g)
+
+#Kodun devamı ayrı sayfadadır.
+
+import pandas as pd
+from numpy import random
+import random
+from pandas import read_excel
+import xlsxwriter
+from eokul1 import g
+
+
+
+list=[]
+class exele_aktar:
+
+    def __init__(self, g):
+        self.t = g
+        self.list=[]
+        self.res=[]
+
+    def panda(self):
+
+        #res = pd.DataFrame(self.t, index=[i for i in range(1, 31)])
+        h = pd.DataFrame(list)
+        h.columns=["Derse hazırlıklı gelir.","Derste kurallara uyar, dersin düzenini bozmaz.","Bilgi kaynaklarına nasıl ulaşacağını bilir."
+                    ,"Ders Malzemelerini Eksiksiz Getirir","Konu ile ilgili görüşlerini açıkça ifade eder","Derse katılımaya isteklidir.",
+                   "Yabancı dili etkin bir şekilde kullanır.","Görüşü sorulduğunda söyler.","Yababncı Dilde sorulan sorulara cevap verebilir",
+                   "Ödevlerini  nitelikli ve özenerek yapar"]
+        h.insert(0,"Numara",g["numaralar"])
+        h.insert(1,"İsimler",g["İsimler"])
+        h.insert(12,"Toplam",g["İlk notlar"])
+        (max_row,max_col)=h.shape
+        print(max_row)
+        file=pd.ExcelWriter("C:/Users/can/Desktop/gizem/python.xlsx", engine="xlsxwriter")
+        h.to_excel(file, sheet_name="eokul", index=False, startrow=3)
+        workbook=xlsxwriter.Workbook("C:/Users/can/Desktop/gizem/python.xlsx")
+        worksheet=file.sheets["eokul"]
+        worksheet.set_zoom(100)
+        worksheet.set_column("A:A",8)
+        worksheet.set_column("B:B",25 )
+        worksheet.set_column("C:M",10)
+        bold=workbook.add_format({"bold":True})
+        bold.set_font_size(20)
+        cell1=workbook.add_format()
+        cell1.set_italic()
+        cell2=workbook.add_format()
+        cell2.set_rotation(90)
+        worksheet.write(0,0,"h",cell2)
+        cell=workbook.add_format({"italic":True, "font_color":'green'})
+        cell.set_rotation(90)
+        worksheet.set_row(3,15, cell2)
+
+        file.save()
+
+    def dagit(self):
+        for i in range(len(self.t["İlk notlar"])):
+            if self.t["İlk notlar"][i] <= 100 and self.t["İlk notlar"][i] > 90:
+                a.notu(9, 11,i)
+            elif self.t["İlk notlar"][i] <= 90 and self.t["İlk notlar"][i] > 80:
+                a.notu(8, 10,i)
+            elif self.t["İlk notlar"][i] <= 80 and self.t["İlk notlar"][i] > 70:
+                a.notu(7, 9,i)
+            elif self.t["İlk notlar"][i] <= 70 and self.t["İlk notlar"][i] > 60:
+                a.notu(6, 8,i)
+            elif self.t["İlk notlar"][i] <= 60 and self.t["İlk notlar"][i] > 50:
+                a.notu(5, 7,i)
+            elif self.t["İlk notlar"][i] <= 50 and self.t["İlk notlar"][i] > 40:
+                a.notu(4, 6,i)
+            else:
+                print("yok")
+
+    def notu(self, z, u,i):
+        self.z = z
+        self.u = u
+        self.i=i
+        self.dict2={}
+        while True:
+            self.p = [random.randrange(self.z, self.u) for a in range(10)]
+            if sum(self.p) == g["İlk notlar"][self.i]:
+                list.append(self.p)
+                break
+        print(list)
+
+
+
+
+a=exele_aktar(g)
+a.dagit()
+a.panda()
