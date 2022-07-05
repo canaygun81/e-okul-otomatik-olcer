@@ -90,7 +90,7 @@ def ogrencibilgi(z):
 
     return dict
 
-s = Service("C:/Users/can/PycharmProjects/pythonProject1/chromedriver.exe")
+s = Service("Your chromedriver.exe path")
 driver = webdriver.Chrome(service=s)
 driver.get("https://e-okul.meb.gov.tr/giris.aspx#!")
 driver.find_element(By.XPATH, "//*[@id='information']/div/div/a[1]/img").click()
